@@ -1,6 +1,6 @@
 on:
   workflow_dispatch:
     inputs:
-      build_id:
+      perform_deploy:
         required: true
-        type: string
+        type: boolean
