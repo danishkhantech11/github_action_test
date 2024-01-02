@@ -1,0 +1,232 @@
+name: Deploy to temp2
+
+# Summary
+# Manually build and deploy temp2 environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      is_secondary_region_active:
+        default: 'false'
+        required: true
+        type: boolean
+
+env:
+  secondary_region: us-east-1
+
+jobs:
+
+  build:
+    uses: ISS/workflows/.github/workflows/oort-build.yml@main
+    with:
+      # slack_events_channel: "#SLACK_EVENTS_CHANNEL_HERE"
+      # notify_slack: False
+      build_artifact_id: temp2-${{ github.run_number }}
+      aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+      # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # approval-for-deployment:
+  #   needs: [build]
+  #   runs-on: CAI-Enterprise-Ubuntu-Latest
+  #   # environment: prod-next
+  #   steps:
+  #     - name: "Workflow approved for deployment"
+  #       run: |
+  #         echo  "deployment pipeline approved"
+
+  create-change-request:
+    needs: [build]
+    runs-on: CAI-Enterprise-Ubuntu-Latest
+    outputs:
+      CHANGE_NUMBER: ${{ steps.create-change-request.outputs.change_number }}
+    steps:
+      - name: "Create change request"
+        id: create-change-request
+        uses: cai-actions/change-request-create@v1
+        with:
+          access_token: ${{ secrets.CHANGE_REQUEST_TOKEN }}
+          primary_ci_number: ${{ vars.COXAUTO_CI_ID }}
+          description: See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} and ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          short_description: "Repository: ${{ github.server_url }}/${{ github.repository }}, Region: us-east-1, Team Name: MediaStow, Escalation Path: https://ghe.coxautoinc.com/ISS/vAuto.CvmSynchronizer/wiki/SRE#escalation-path"
+          sandbox_mode: false 
+          environment: Development
+
+  deploy-to-temp2:
+    needs: [create-change-request]
+    uses: ISS/workflows/.github/workflows/oort-deploy.yml@main
+    with:
+      environment: temp2
+      github_environment: dev-next
+      # slack_events_channel: "#SLACK_EVENTS_CHANNEL_HERE"
+      notify_slack: false
+      build_artifact_id: temp2-${{ github.run_number }}
+      aws_region: ${{ env.secondary_region }}
+      aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+      aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+      # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+ 
+  integration-testing:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'True'}}
+    needs: [deploy-to-temp2]
+    uses: ./.github/workflows/integration-testing.yml
+    with:
+      sub_environment: next
+      environment: temp2
+      domain: ${{ vars.NON_PROD_DOMAIN_NAME }}
+      configuration_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+      configuration_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+      aws_region: ${{ env.secondary_region }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+
+  promote-to-temp2-when-secondary-region-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'True'}}
+    needs: [integration-testing]
+    uses: ISS/workflows/.github/workflows/oort-promote.yml@main
+    with:
+      environment: temp2
+      github_environment: dev-live
+      # slack_events_channel: '#SLACK_EVENTS_CHANNEL_HERE'
+      notify_slack: false
+      aws_region: ${{ env.secondary_region }}
+      aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+      aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+      # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }} 
+
+  promote-to-temp2-when-secondary-region-not-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'false'}}
+    needs: [deploy-to-temp2]
+    uses: ISS/workflows/.github/workflows/oort-promote.yml@main
+    with:
+      environment: temp2
+      github_environment: dev-live
+      # slack_events_channel: '#SLACK_EVENTS_CHANNEL_HERE'
+      notify_slack: false
+      aws_region: ${{ env.secondary_region }}
+      aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+      aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+      # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  scale-down-prev-instance:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'True'}}
+    needs: [promote-to-temp2-when-secondary-region-active]
+    uses: ./.github/workflows/scale-service.yml
+    with:
+      aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+      aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+      environment: temp2
+      target: deploy
+      instance_name : prev
+      github_environment: dev-live
+      ci_id: ${{ vars.COXAUTO_CI_ID }}
+    secrets: 
+      artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+      artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}       
+
+## NOTE: "We are skipping the deployment marker for now in secondary region as APM does not exists."
+  # newrelic-deployment-marker:
+  #   needs: [promote-to-prod, create-change-request]
+  #   if: ${{ github.event.inputs.is_secondary_region_active == 'True' && needs.promote-to-prod.result == 'success' }}
+  #   runs-on: CAI-Enterprise-Ubuntu-Latest
+  #   steps:
+  #     # This step builds a var with the release tag value to use later
+  #     - name: Set Release Version from Tag
+  #       run: echo "RELEASE_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+
+  #     # This step creates a new Change Tracking Marker
+  #     - name: New Relic Application Deployment Marker
+  #       env:
+  #         CHANGE_NUMBER: ${{needs.create-change-request.outputs.CHANGE_NUMBER}}
+  #       uses: newrelic/deployment-marker-action@v2.4.0
+  #       with:
+  #         apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+  #         description: |
+  #           Change Request Number: ${{ env.CHANGE_NUMBER }}
+  #           Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #           ${{ vars.NEW_RELIC_DEPLOYMENT_MARKER_DESCRIPTION }}
+  #         region: "US"
+  #         guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_PROD_US_EAST_2_ENTITY_GUID }}
+  #         deploymentType: "BLUE_GREEN"
+  #         version: "${{ env.RELEASE_VERSION }}"
+  #         user: "${{ github.actor }}"
+
+  close-change-request-failure-when-secondary-region-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'True' && always() && contains(needs.*.result, 'failure') }}
+    needs: [deploy-to-temp2, promote-to-temp2-when-secondary-region-active, scale-down-prev-instance, create-change-request]
+    runs-on: CAI-Enterprise-Ubuntu-Latest
+    steps:
+      - name: Close CRQ with "CICD - Failed" on Job Failure
+        env:
+          CHANGE_NUMBER: ${{needs.create-change-request.outputs.CHANGE_NUMBER}}
+        id: close-crq-failure
+        uses: cai-actions/change-request-close@v1
+        with:
+          change_request_number: ${{ env.CHANGE_NUMBER }}
+          close_code: "CICD - Failed"
+          close_note_text: "Change Failed"
+          sandbox_mode: false
+          access_token: ${{ secrets.CHANGE_REQUEST_TOKEN }}
+
+  close-change-request-failure-when-secondary-region-not-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'false' && always() && contains(needs.*.result, 'failure') }}
+    needs: [deploy-to-temp2, promote-to-temp2-when-secondary-region-not-active, create-change-request]
+    runs-on: CAI-Enterprise-Ubuntu-Latest
+    steps:
+      - name: Close CRQ with "CICD - Failed" on Job Failure
+        env:
+          CHANGE_NUMBER: ${{needs.create-change-request.outputs.CHANGE_NUMBER}}
+        id: close-crq-failure
+        uses: cai-actions/change-request-close@v1
+        with:
+          change_request_number: ${{ env.CHANGE_NUMBER }}
+          close_code: "CICD - Failed"
+          close_note_text: "Change Failed"
+          sandbox_mode: false
+          access_token: ${{ secrets.CHANGE_REQUEST_TOKEN }}  
+
+  close-change-request-success-when-secondary-region-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'True' &&  always() && !contains(needs.*.result, 'failure') }}
+    needs: [deploy-to-temp2, promote-to-temp2-when-secondary-region-active, scale-down-prev-instance, create-change-request]
+    runs-on: CAI-Enterprise-Ubuntu-Latest
+    steps:
+      - name: Close CRQ with "Successful" on Job Success
+        env:
+          CHANGE_NUMBER: ${{needs.create-change-request.outputs.CHANGE_NUMBER}}
+        id: close-crq-success
+        uses: cai-actions/change-request-close@v1
+        with:
+          change_request_number: ${{ env.CHANGE_NUMBER }}
+          close_code: "Successful"
+          close_note_text: "Change Successful"
+          sandbox_mode: false
+          access_token: ${{ secrets.CHANGE_REQUEST_TOKEN }}
+
+  close-change-request-success-when-secondary-region-not-active:
+    if: ${{ github.event.inputs.is_secondary_region_active == 'false' &&  always() && !contains(needs.*.result, 'failure') }}
+    needs: [deploy-to-temp2, promote-to-temp2-when-secondary-region-not-active, create-change-request]
+    runs-on: CAI-Enterprise-Ubuntu-Latest
+    steps:
+      - name: Close CRQ with "Successful" on Job Success
+        env:
+          CHANGE_NUMBER: ${{needs.create-change-request.outputs.CHANGE_NUMBER}}
+        id: close-crq-success
+        uses: cai-actions/change-request-close@v1
+        with:
+          change_request_number: ${{ env.CHANGE_NUMBER }}
+          close_code: "Successful"
+          close_note_text: "Change Successful"
+          sandbox_mode: false
+          access_token: ${{ secrets.CHANGE_REQUEST_TOKEN }}
