@@ -1,0 +1,30 @@
+name: Update File
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Make Changes to File
+        run: |
+          # Navigate to the specific folder
+          cd ../../terraform/
+
+          # Make changes to the file (replace with your commands)
+          echo "New content" > filename.txt
+
+      - name: Commit and Push Changes
+        run: |
+          # git config --global user.email "actions@github.com"
+          # git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "Update file via GitHub Actions"
+          git push
