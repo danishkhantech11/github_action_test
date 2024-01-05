@@ -1,16 +1,23 @@
-# main.tf
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
 
-provider "aws" {
-  region = "us-east-1"  # Update with your desired AWS region
+  required_version = ">= 1.2.0"
 }
 
-resource "aws_s3_bucket" "example_bucket" {
-  bucket = "your-unique-bucket-name"  # Update with a globally unique bucket name
+provider "aws" {
+  region  = "us-west-2"
+}
 
-  acl    = "private"
+resource "aws_instance" "app_server" {
+  ami           = "ami-830c94e3"
+  instance_type = "t2.micro"
 
   tags = {
-    Name        = "ExampleBucket"
-    Environment = "Test"
+    Name = "ExampleAppServerInstance"
   }
 }
