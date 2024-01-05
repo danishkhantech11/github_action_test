@@ -22,6 +22,13 @@ jobs:
            ls
            sed -i 's/default\s*=\s*1/default = 2/' variables2.tf
 
+      - name: Terraform Plan
+        run: |
+           cd terraform
+           ls
+           terraform init
+           terraform plan           
+
 
   terraform2:
     runs-on: ubuntu-latest
