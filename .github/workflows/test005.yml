@@ -14,19 +14,8 @@ jobs:
       - name: Make Changes to File
         run: |
           # Navigate to the specific folder
-          cd ..
-          pwd
-          cd ..
-          pwd
-          cd ..
-          pwd
           ls
-          cd ..
-          pwd
-          ls
-          cd ..
-          pwd
-          ls
+          cd terraform/
 
 
           # Make changes to the file (replace with your commands)
