@@ -24,3 +24,8 @@ jobs:
           terraform apply -auto-approve
         env:
           TF_VAR_example_variable: ${{ secrets.EXAMPLE_VARIABLE }}
+          
+      - name: Modify Terraform Variables
+        run: |
+          echo "example_variable = \"new_value\"" >> variables.tfvars
+   
