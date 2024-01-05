@@ -1,12 +1,16 @@
 # main.tf
 
-# Define a variable
-variable "example_variable" {
-  type    = string
-  default = "Hello, Terraform!"
+provider "aws" {
+  region = "us-east-1"  # Update with your desired AWS region
 }
 
-# Print the value of the variable using the output block
-output "output_example" {
-  value = var.example_variable
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "your-unique-bucket-name"  # Update with a globally unique bucket name
+
+  acl    = "private"
+
+  tags = {
+    Name        = "ExampleBucket"
+    Environment = "Test"
+  }
 }
