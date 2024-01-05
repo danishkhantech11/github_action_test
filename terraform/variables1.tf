@@ -4,11 +4,6 @@ variable "v1" {
   type        = number
 }
 
-variable "v2" {
-  default     = 1
-  description = "Initial min task count for ECS Service"
-  type        = number
-}
 
 variable "v3" {
   default     = 6
