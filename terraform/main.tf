@@ -21,3 +21,7 @@ resource "aws_instance" "app_server" {
     Name = "ExampleAppServerInstance"
   }
 }
+
+output "VMCount" {
+  value = "${var.VMCount > 2 && var.VMCount < 6 ? var.VMCount : 2}"
+}
