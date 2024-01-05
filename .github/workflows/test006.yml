@@ -29,22 +29,57 @@ jobs:
            terraform init
            terraform plan           
 
-
-  terraform2:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.1.7
-
       - name: Terraform files
         run: |
-           cd terraform
-           ls
-           terraform init
-           terraform plan
+          if [[ github.event.inputs.is_secondary_region_active == 'True' ]]; then
+            cd infrastructure/instance/
+            sed -i 's/default\s*=\s*false/default = true/' secondary-region-status.tf
+          fi
+
+      - name: deploy-to-temp2
+        uses: ISS/workflows/.github/workflows/oort-deploy.yml@main
+        with:
+           environment: temp2
+           github_environment: dev-live
+           # slack_events_channel: "#SLACK_EVENTS_CHANNEL_HERE"
+           notify_slack: false
+           build_artifact_id: temp2-${{ github.run_number }}
+           aws_region: us-east-2
+           aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+           aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+        env:
+          artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+          # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}   
+
+
+  # deploy-to-temp2:
+  #   needs: [create-change-request]
+  #   runs-on: CAI-Enterprise-Ubuntu-Latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2    
+
+  #     - name: Changing secondary region status if true 
+  #       run: |
+  #         if [[ github.event.inputs.is_secondary_region_active == 'True' ]]; then
+  #           cd infrastructure/instance/
+  #           sed -i 's/default\s*=\s*false/default = true/' secondary-region-status.tf
+  #         fi
+
+  #     - name: deploy to temp2
+  #       uses: ISS/workflows/.github/workflows/oort-deploy.yml@main
+  #       with:
+  #          environment: temp2
+  #          github_environment: dev-live
+  #          # slack_events_channel: "#SLACK_EVENTS_CHANNEL_HERE"
+  #          notify_slack: false
+  #          build_artifact_id: temp2-${{ github.run_number }}
+  #          aws_region: us-east-2
+  #          aws_account_id: ${{ vars.NON_PROD_AWS_ACCOUNT_ID }}
+  #          aws_account_alias: ${{ vars.NON_PROD_AWS_ACCOUNT_ALIAS }}
+  #       env:
+  #         artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+  #         artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+  #         # slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}   
+
