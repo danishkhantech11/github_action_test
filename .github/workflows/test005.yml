@@ -14,7 +14,7 @@ jobs:
       - name: Make Changes to File
         run: |
           # Navigate to the specific folder
-          cd ../../terraform/
+          cd ../../terraform
 
           # Make changes to the file (replace with your commands)
           echo "New content" > filename.txt
