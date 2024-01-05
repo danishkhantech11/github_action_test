@@ -1,27 +1,12 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
+# main.tf
 
-  required_version = ">= 1.2.0"
+# Define a variable
+variable "example_variable" {
+  type    = string
+  default = "Hello, Terraform!"
 }
 
-provider "aws" {
-  region  = "us-west-2"
-}
-
-resource "aws_instance" "app_server" {
-  ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "ExampleAppServerInstance"
-  }
-}
-
-output "VMCount" {
-  value = "${var.VMCount > 2 && var.VMCount < 6 ? var.VMCount : 2}"
+# Print the value of the variable using the output block
+output "output_example" {
+  value = var.example_variable
 }
