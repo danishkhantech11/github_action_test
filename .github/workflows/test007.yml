@@ -1,0 +1,30 @@
+name: Terraform Workflow 2
+
+on:
+  workflow_dispatch:
+    inputs:
+      is_secondary_region_active:
+        default: 'false'
+        required: true
+        type: boolean
+
+jobs:
+  terraform:
+    if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Terraform files
+        run: |
+           cd infrastructure/instance/
+           ls
+           sed -i 's/default\s*=\s*false/default = true/' Secondary_region_status.tf
+           terraform init
+           terraform plan
