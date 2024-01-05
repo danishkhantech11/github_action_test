@@ -10,3 +10,7 @@ variable "example_variable" {
 output "output_example" {
   value = var.v1
 }
+
+output "output_example" {
+  value = var.v2
+}
