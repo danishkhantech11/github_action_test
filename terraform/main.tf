@@ -8,5 +8,5 @@ variable "example_variable" {
 
 # Print the value of the variable using the output block
 output "output_example" {
-  value = var.example_variable
+  value = var.v1
 }
