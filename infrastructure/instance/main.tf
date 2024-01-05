@@ -43,3 +43,23 @@ output "ecs-infra" {
   max_task_count      = var.secondary_region == var.region ? 0 : var.max_task_count
   }
 }
+output "var.secondary_region" {
+  value = var.secondary_region
+}
+
+output "var.region" {
+  value = var.region
+}
+
+output "desired_task_count" {
+  value = desired_task_count
+}
+
+output "var.min_task_count" {
+  value = var.min_task_count
+}
+
+output "var.max_task_count" {
+  value = var.max_task_count
+}
+
