@@ -18,7 +18,7 @@ jobs:
 
       - name: Terraform files
         run: |
-           cd terraform
+           cd infrastructure/instance
            ls
            # sed -i 's/default\s*=\s*1/default = 2/' variables2.tf
            terraform init
