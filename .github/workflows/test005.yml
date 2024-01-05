@@ -20,7 +20,13 @@ jobs:
           pwd
           cd ..
           pwd
-
+          ls
+          cd ..
+          pwd
+          ls
+          cd ..
+          pwd
+          ls
 
 
           # Make changes to the file (replace with your commands)
