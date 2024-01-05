@@ -21,5 +21,23 @@ jobs:
            cd terraform
            ls
            sed -i 's/default\s*=\s*1/default = 2/' variables2.tf
+
+
+  terraform2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Terraform files
+        run: |
+           cd terraform
+           ls
            terraform init
            terraform plan
