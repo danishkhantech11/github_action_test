@@ -10,7 +10,7 @@ on:
 
 jobs:
   terraform:
-    if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
+    # if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
