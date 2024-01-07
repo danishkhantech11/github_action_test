@@ -1,3 +1,9 @@
+variable "is_secondary_region_active" {
+  description = "Defining the status of the secondary region (us-east-2)"
+  type        = bool
+  default     = false
+}
+
 variable "desired_task_count" {
   default     = 1
   description = "Initial desired task count for ECS Service"
