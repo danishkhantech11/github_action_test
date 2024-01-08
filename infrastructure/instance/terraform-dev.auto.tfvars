@@ -1,2 +1,2 @@
  # terraform-dev.tfvars
- is_secondary_region_active    =    "eu-central-1"
+ is_secondary_region_active    =    "auto.tfvars"
