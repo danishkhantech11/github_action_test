@@ -29,6 +29,6 @@ output "var_min_task_count" {
 }
 
 output "var_is_secondary_region_active" {
-  value = var.is_secondary_region_active == "true"
+  value = var.is_secondary_region_active
 }
 
