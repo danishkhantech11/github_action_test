@@ -9,7 +9,8 @@ on:
         type: boolean
 
 env:
-  TF_VAR_is_secondary_region_active: true
+  # TF_VAR_is_secondary_region_active: true
+  TF_VAR_is_secondary_region_active: ${{ github.event.inputs.is_secondary_region_active }}
 
 jobs:
   terraform:
