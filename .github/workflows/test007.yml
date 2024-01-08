@@ -32,7 +32,7 @@ jobs:
         run: |
            cd infrastructure/instance/
            ls
-           echo 'is_secondary_region_active = true' > is_secondary_region_active.tfvars
+           echo 'is_secondary_region_active = true' > is-secondary-region-active.tfvars
            cat is_secondary_region_active.tfvars
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
