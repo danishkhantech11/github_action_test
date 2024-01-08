@@ -8,12 +8,15 @@ on:
         required: true
         type: boolean
 
+env:
+  TF_VAR_is_secondary_region_active: true
+
 jobs:
   terraform:
     # if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
     runs-on: ubuntu-latest
-    env:
-      TF_VAR_is_secondary_region_active: true
+    # env:
+    #   TF_VAR_is_secondary_region_active: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
