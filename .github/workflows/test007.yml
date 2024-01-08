@@ -33,7 +33,7 @@ jobs:
            cd infrastructure/instance/
            ls
            rm terraform-dev.auto.tfvars
-           echo 'is_secondary_region_active = "wfddsfdsf"' >> terraform-dev.auto.tfvars
+           echo 'is_secondary_region_active = True' >> terraform-dev.auto.tfvars
            cat terraform-dev.auto.tfvars
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
