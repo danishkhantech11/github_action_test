@@ -33,7 +33,7 @@ jobs:
            cd infrastructure/instance/
            ls
            echo 'is_secondary_region_active = true' > is-secondary-region-active.tfvars
-           cat is_secondary_region_active.tfvars
+           cat is-secondary-region-active.tfvars
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
            terraform init
