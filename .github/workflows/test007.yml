@@ -32,7 +32,7 @@ jobs:
         run: |
            cd infrastructure/instance/
            ls
-           echo is_secondary_region_active    =    "workflow_override" > terraform-dev.auto.tfvars
+           echo "is_secondary_region_active = "workflow_override""> terraform-dev.auto.tfvars
            cat terraform-dev.auto.tfvars
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
