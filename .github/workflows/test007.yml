@@ -17,6 +17,8 @@ jobs:
   terraform:
     # if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
     runs-on: ubuntu-latest
+    env:
+      MY_BOOL_VALUE: true
     # env:
     #   TF_VAR_is_secondary_region_active: true
     steps:
@@ -33,8 +35,7 @@ jobs:
            cd infrastructure/instance/
            ls
            rm terraform-dev.auto.tfvars
-           my_bool_value=true
-           echo 'is_secondary_region_active = $my_bool_value' >> terraform-dev.auto.tfvars
+           echo 'is_secondary_region_active = $MY_BOOL_VALUE' >> terraform-dev.auto.tfvars
            cat terraform-dev.auto.tfvars
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
