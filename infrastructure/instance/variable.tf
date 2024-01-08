@@ -1,6 +1,7 @@
 variable "is_secondary_region_active" {
   description = "Defining the status of the secondary region (us-east-2)"
   type        = string
+  default     = "tf file"
 }
 
 variable "desired_task_count" {
