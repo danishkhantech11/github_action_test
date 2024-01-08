@@ -38,7 +38,6 @@ jobs:
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
            terraform init
            terraform plan
-           terraform console
 
   terraform2:
     # if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
