@@ -25,6 +25,6 @@ jobs:
         run: |
            cd infrastructure/instance/
            ls
-           sed -i 's/default\s*=\s*false/default = true/' Secondary_region_status.tf
+           sed -i 's/default\s*=\s*false/default = true/' variable.tf
            terraform init
            terraform plan
