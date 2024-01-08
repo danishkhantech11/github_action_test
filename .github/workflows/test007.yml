@@ -12,6 +12,8 @@ jobs:
   terraform:
     # if: ${{ needs.create-change-request.outputs.is_secondary_region_active == 'True'}}
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_is_secondary_region_active: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -26,7 +28,5 @@ jobs:
            cd infrastructure/instance/
            ls
            # sed -i 's/default\s*=\s*false/default = true/' variable.tf
-           env:
-             TF_VAR_is_secondary_region_active = true
            terraform init
            terraform plan
