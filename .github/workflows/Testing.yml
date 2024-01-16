@@ -29,3 +29,11 @@ jobs:
         id: aws_account_alias
         run: |
           echo "This is AWS ACCOUNT ---> ${{ env.AWS_ACCOUNT }} "
+          NEW_AWS_ACCOUNT="${{ env.AWS_ACCOUNT }}_suffix"
+
+          echo "Original AWS ACCOUNT ---> ${{ env.AWS_ACCOUNT }}"
+          echo "New AWS ACCOUNT ---> $NEW_AWS_ACCOUNT"
+
+      - name: Print New AWS Account
+        run: |
+          echo "Value of NEW_AWS_ACCOUNT ---> $NEW_AWS_ACCOUNT"
