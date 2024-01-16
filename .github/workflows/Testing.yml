@@ -1,0 +1,31 @@
+name: Scale Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_region:
+        required: true 
+        type: string
+        description: The aws region where the scaling happen.
+      AWS_ACCOUNT:
+        required: true 
+        type: string
+        description: The aws account alias where the scaling happen.
+      
+jobs:
+  scale-service:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCOUNT : ${{ inputs.aws_account_alias }}
+      REGION : ${{ inputs.test_region }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: AWS Account Alias
+        id: aws_account_alias
+        run: |
+          echo "This is AWS ACCOUNT ---> $AWS_ACCOUNT"
