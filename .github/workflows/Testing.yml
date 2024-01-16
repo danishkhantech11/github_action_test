@@ -39,4 +39,4 @@ jobs:
         env:
           NEW_AWS_ACCOUNT: ${{ steps.aws_account_alias.outputs.NEW_AWS_ACCOUNT }}
         run: |     
-          echo "Value of NEW_AWS_ACCOUNT ---> $NEW_AWS_ACCOUNT"
+          echo "Value of NEW_AWS_ACCOUNT ---> $GITHUB_WORKSPACE/$NEW_AWS_ACCOUNT.tfvars"
