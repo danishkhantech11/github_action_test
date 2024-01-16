@@ -36,4 +36,6 @@ jobs:
 
       - name: Print New AWS Account
         run: |
+          env:
+            NEW_AWS_ACCOUNT: ${{ steps.aws_account_alias.outputs.NEW_AWS_ACCOUNT }}     
           echo "Value of NEW_AWS_ACCOUNT ---> $NEW_AWS_ACCOUNT"
