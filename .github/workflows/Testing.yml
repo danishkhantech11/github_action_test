@@ -33,6 +33,7 @@ jobs:
 
           echo "Original AWS ACCOUNT ---> ${{ env.AWS_ACCOUNT }}"
           echo "New AWS ACCOUNT ---> $NEW_AWS_ACCOUNT"
+          echo "::set-output name=NEW_AWS_ACCOUNT::$NEW_AWS_ACCOUNT"
 
       - name: Print New AWS Account
         env:
