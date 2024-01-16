@@ -28,4 +28,4 @@ jobs:
       - name: AWS Account Alias
         id: aws_account_alias
         run: |
-          echo "This is AWS ACCOUNT ---> $AWS_ACCOUNT"
+          echo "This is AWS ACCOUNT ---> ${{ env.AWS_ACCOUNT }} "
