@@ -1,0 +1,38 @@
+name: Run Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:    
+      - "**/*.md"
+    schedule:
+      - cron: "30 9 * * 1-5"  
+  workflow_dispatch:    
+    inputs:
+      environment:
+        required: true 
+        type: choice
+        description: The environment against which integration tests should be running.
+        default: dev
+        options:
+          - dev 
+          - prod
+
+env:
+  configuration_account_id: ${{ github.event.inputs.environment == 'prod' && '2441367264999' || '56124121171172' }}
+  configuration_account_alias: ${{ github.event.inputs.environment == 'prod' && 'awsvaimages' || 'awsvaimagesnp' }} 
+
+jobs:
+  run-integration-tests:
+    runs-on: ubuntu-latest
+    steps:          
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Fetch the effective URL
+        id: effective_url
+        shell: bash
+        run: |
+          echo $configuration_account_id
+          echo $configuration_account_alias
