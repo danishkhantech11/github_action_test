@@ -1,16 +1,7 @@
 name: Run Integration Tests
 
 on:
-  workflow_dispatch:    
-    inputs:
-      environment:
-        required: true 
-        type: choice
-        description: The environment against which integration tests should be running.
-        default: dev
-        options:
-          - dev 
-          - prod
+  workflow_dispatch:
 
 env:
   configuration_account_id: ${{ github.event.inputs.environment == 'prod' && '2441367264999' || '56124121171172' }}
