@@ -1,13 +1,6 @@
 name: Run Integration Tests
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:    
-      - "**/*.md"
-    schedule:
-      - cron: "30 9 * * 1-5"  
   workflow_dispatch:    
     inputs:
       environment:
