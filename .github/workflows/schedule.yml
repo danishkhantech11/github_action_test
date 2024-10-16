@@ -3,7 +3,7 @@ run-name: Integration Tests Run On ${{ inputs.environment }}
 
 on:
   schedule:
-    - cron: "26 6 * * 1-5"
+    - cron: "50 6 * * 1-5"
   workflow_dispatch:    
     inputs:
       environment:
