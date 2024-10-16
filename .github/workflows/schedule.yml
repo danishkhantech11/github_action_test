@@ -1,19 +1,19 @@
 name: Scheduled Integration Tests Run
-run-name: Integration Tests Run On ${{ env.environment }}
+run-name: Integration Tests Run On ${{ inputs.environment }}
 
 on:
   schedule:
     - cron: '*/5 * * * *'
-  # workflow_dispatch:    
-  #   inputs:
-  #     environment:
-  #       required: true 
-  #       type: choice
-  #       description: The environment against which integration tests should be running.
-  #       default: dev
-  #       options:
-  #         - dev 
-  #         - prod
+  workflow_dispatch:    
+    inputs:
+      environment:
+        required: true 
+        type: choice
+        description: The environment against which integration tests should be running.
+        default: dev
+        options:
+          - dev 
+          - prod
 
 env:
   environment: ${{ github.event.inputs.environment || 'schedule' }}
