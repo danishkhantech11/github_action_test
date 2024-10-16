@@ -1,0 +1,46 @@
+name: Scheduled Integration Tests Run
+run-name: Integration Tests Run On ${{ inputs.environment }}
+
+on:
+  schedule:
+    - cron: "26 6 * * 1-5"
+  workflow_dispatch:    
+    inputs:
+      environment:
+        required: true 
+        type: choice
+        description: The environment against which integration tests should be running.
+        default: dev
+        options:
+          - dev 
+          - prod
+
+env:
+  environment: ${{ github.event.inputs.environment || 'schedule' }}
+  dev_domain: ${{ vars.CAI_NON_PROD_DOMAIN_NAME }}
+  prod_domain: ${{ vars.CAI_PROD_DOMAIN_NAME }}
+  aws_region: "us-east-1" 
+  configuration_account_id: ${{ github.event.inputs.environment == 'prod' && vars.PROD_AWS_ACCOUNT_ID || vars.NON_PROD_AWS_ACCOUNT_ID }}
+  configuration_account_alias: ${{ github.event.inputs.environment == 'prod' && vars.PROD_AWS_ACCOUNT_ALIAS || vars.NON_PROD_AWS_ACCOUNT_ALIAS}}
+
+jobs:
+  run-integration-tests:
+    runs-on: "Ubuntu-Latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Fetch the effective URL
+        id: effective_url
+        shell: bash
+        run: |
+          if [[ "${{ env.environment }}" != "prod" ]]; then
+            Url=$(echo 'https://${{ env.environment }}.api.${{ env.dev_domain }}')
+          fi
+          if [[ "${{ env.environment }}" == "prod" ]]; then
+            Url=$(echo 'https://api.${{ env.prod_domain }}')
+          fi
+          echo $
+          EnvUrl=${Url}
+          echo ${{ env.environment }}
+          echo "env_url=$EnvUrl" >> $GITHUB_OUTPUT
