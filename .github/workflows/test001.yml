@@ -1,21 +1,21 @@
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
 
-env:
-  configuration_account_id: ${{ github.event.inputs.environment == 'prod' && '2441367264999' || '56124121171172' }}
-  configuration_account_alias: ${{ github.event.inputs.environment == 'prod' && 'awsvaimages' || 'awsvaimagesnp' }} 
+# env:
+#   configuration_account_id: ${{ github.event.inputs.environment == 'prod' && '2441367264999' || '56124121171172' }}
+#   configuration_account_alias: ${{ github.event.inputs.environment == 'prod' && 'awsvaimages' || 'awsvaimagesnp' }} 
 
-jobs:
-  run-integration-tests:
-    runs-on: ubuntu-latest
-    steps:          
-      - name: Checkout
-        uses: actions/checkout@v3
+# jobs:
+#   run-integration-tests:
+#     runs-on: ubuntu-latest
+#     steps:          
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Fetch the effective URL
-        id: effective_url
-        shell: bash
-        run: |
-          echo $configuration_account_id
-          echo $configuration_account_alias
+#       - name: Fetch the effective URL
+#         id: effective_url
+#         shell: bash
+#         run: |
+#           echo $configuration_account_id
+#           echo $configuration_account_alias
 
