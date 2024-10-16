@@ -1,4 +1,4 @@
-name: Scheduled Integration Tests Run
+name: Scheduled Tests
 # run-name: Integration Tests Run On ${{ inputs.environment }}
 
 on:
